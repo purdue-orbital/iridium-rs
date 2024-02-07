@@ -1,5 +1,7 @@
 use rusb::{Context, Device, DeviceHandle, UsbContext};
 
+use std::time::Duration;
+
 mod usb_stuff;
 
 // pub struct TeleDongle <U: UsbContext> {
@@ -24,6 +26,16 @@ impl TeleDongle {
 	const VID: u16 = 0xfffe;
 	const PID: u16 = 0x000c;
 	const CONFIG: u8 = 0;
+	const TIMEOUT: Duration = Duration::from_millis(250);
+
+	const SET_LINE_CODING_PAYLOAD_17: [u8; 7] = [0x00, 0xc2, 0x01, 0x00, 0x00, 0x00, 0x08];
+	const SET_LINE_CODING_PAYLOAD_39: [u8; 7] = [0x80, 0x25, 0x00, 0x00, 0x00, 0x00, 0x08]; // also used for 45
+	const BULK_49: [u8; 10] = [0x7e, 0x0a, 0x45, 0x20, 0x30, 0x0a, 0x6d, 0x20, 0x30, 0x0a];
+	const BULK_63: [u8;  5] = [0x6d, 0x20, 0x32, 0x30, 0x0a]; // also used for 73, 81
+	const BULK_65: [u8; 12] = [0x6d, 0x20, 0x30, 0x0a, 0x63, 0x20, 0x73, 0x0a, 0x66, 0x0a, 0x76, 0x0a];
+	const BULK_75: [u8; 20] = [0x6d, 0x20, 0x30, 0x0a, 0x63, 0x20, 0x46, 0x20, 0x34, 0x33, 0x34, 0x35, 0x35, 0x30, 0x0a, 0x6d, 0x20, 0x32, 0x30, 0x0a];
+	const BULK_77: [u8;  9] = [0x6d, 0x20, 0x30, 0x0a, 0x6d, 0x20, 0x32, 0x30, 0x0a];
+	const BULK_79: [u8; 15] = [0x6d, 0x20, 0x30, 0x0a, 0x63, 0x20, 0x54, 0x20, 0x30, 0x0a, 0x6d, 0x20, 0x32, 0x30, 0x0a];
 
 	pub fn new() -> anyhow::Result<Self> {
 		let mut context = Context::new()?;
@@ -35,8 +47,10 @@ impl TeleDongle {
 		// find the endpoint thingy, should be 0x00 i think
 		let endpoints = usb_stuff::find_readable_endpoints(&mut device)?;
 		dbg!(&endpoints);
+		// should iface == 1??? (look at packet 13)
 		let endpoint = endpoints.first().expect("No Configurable endpoint found on device").clone();
 
+		// check if there is a kernel driver, if there is, detatch it
 		let had_kernel_driver = match handle.kernel_driver_active(endpoint.iface) {
 			Ok(true) => {
 				handle.detach_kernel_driver(endpoint.iface)?;
@@ -45,11 +59,55 @@ impl TeleDongle {
 			_ => false,
 		};
 
+		dbg!(had_kernel_driver);
+
 		// set config
+		// should iface = 1 and setting = 0??? (look at packet 13)
 		handle.set_active_configuration(Self::CONFIG)?;
 		handle.claim_interface(endpoint.iface)?;
 		// IDK what this does....
-		// handle.set_alternate_setting(endpoint.iface, endpoint.setting)?;
+		// i think its packet 13
+		handle.set_alternate_setting(endpoint.iface, endpoint.setting)?;
+
+		// set control line state request (packet 17)
+		// i think this is correct
+		handle.write_control(0x21, 0x22, 0, 0, &[], Self::TIMEOUT)?;
+
+		// set line coding request (packet 19)
+		handle.write_control(0x21, 0x20, 0, 0, &Self::SET_LINE_CODING_PAYLOAD_17, Self::TIMEOUT)?;
+
+		// FROM HERE ON i am keeping track of which packets haven't been implemented
+		// skipping packets: 23, 24, 25, 28, 29, 31, 33, 35, 37
+
+		// set line coding request (packet 39)
+		handle.write_control(0x21, 0x20, 0, 0, &Self::SET_LINE_CODING_PAYLOAD_39, Self::TIMEOUT)?;
+
+		// skipping packet: 41
+
+		// set control line state request (packet 43)
+		handle.write_control(0x21, 0x02, 3, 0, &[], Self::TIMEOUT)?;
+
+		// set line coding request (packet 45)
+		handle.write_control(0x21, 0x20, 0, 0, &Self::SET_LINE_CODING_PAYLOAD_39, Self::TIMEOUT)?;
+
+		// packet 49
+		handle.write_bulk(2, &Self::BULK_49, Self::TIMEOUT)?;
+
+		// skipping packets: 51-61.
+		// packet 62 is just info. same for 67-71
+
+		// packet 63-66
+		handle.write_bulk(2, &Self::BULK_63, Self::TIMEOUT)?;
+		handle.write_bulk(2, &Self::BULK_65, Self::TIMEOUT)?;
+
+		// packet 72's response is telemetry, but it's reply (packet 83) comes 30 seconds later soooo idk
+		
+		// packets 73-82
+		handle.write_bulk(2, &Self::BULK_63, Self::TIMEOUT)?; // 73
+		handle.write_bulk(2, &Self::BULK_75, Self::TIMEOUT)?; // 75
+		handle.write_bulk(2, &Self::BULK_77, Self::TIMEOUT)?; // 77
+		handle.write_bulk(2, &Self::BULK_79, Self::TIMEOUT)?; // 79
+		handle.write_bulk(2, &Self::BULK_63, Self::TIMEOUT)?; // 81
 
 		Ok(Self {
 			context,
@@ -66,6 +124,7 @@ impl Drop for TeleDongle {
 	fn drop(&mut self) {
 		self.handle.release_interface(self.endpoint.iface).expect("couldn't release teledongle interface");
 
+		// reattach kernel driver if needed
 		if self.had_kernel_driver {
 			self.handle.attach_kernel_driver(self.endpoint.iface).expect("couldn't attach kernel driver");
 		}
