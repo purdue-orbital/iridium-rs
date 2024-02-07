@@ -1,4 +1,4 @@
-use rusb::{Context, Device, DeviceHandle, UsbContext};
+use rusb::{Context, Device, DeviceHandle};
 
 use std::time::Duration;
 
@@ -12,6 +12,7 @@ mod usb_stuff;
 // 	had_kernel_driver: bool,
 // }
 
+#[allow(dead_code)]
 pub struct TeleDongle {
 	context: Context,
 	device: Device<Context>,
@@ -23,10 +24,16 @@ pub struct TeleDongle {
 // impl<U: UsbContext> TeleDongle<U> {
 impl TeleDongle {
 	// TODO: CHECK!!!
-	const VID: u16 = 0xfffe;
-	const PID: u16 = 0x000c;
+	// const VID: u16 = 0xfffe;
+	const VID: u16 = 65534;
+	// const PID: u16 = 0x000c;
+	const PID: u16 = 12;
+
 	const CONFIG: u8 = 0;
+	const TELEM_ENDPOINT: u8 = 0x83;
+
 	const TIMEOUT: Duration = Duration::from_millis(250);
+	const LONG_TIMEOUT: Duration = Duration::from_millis(1500);
 
 	const SET_LINE_CODING_PAYLOAD_17: [u8; 7] = [0x00, 0xc2, 0x01, 0x00, 0x00, 0x00, 0x08];
 	const SET_LINE_CODING_PAYLOAD_39: [u8; 7] = [0x80, 0x25, 0x00, 0x00, 0x00, 0x00, 0x08]; // also used for 45
@@ -47,7 +54,6 @@ impl TeleDongle {
 		// find the endpoint thingy, should be 0x00 i think
 		let endpoints = usb_stuff::find_readable_endpoints(&mut device)?;
 		dbg!(&endpoints);
-		// should iface == 1??? (look at packet 13)
 		let endpoint = endpoints.first().expect("No Configurable endpoint found on device").clone();
 
 		// check if there is a kernel driver, if there is, detatch it
@@ -65,6 +71,11 @@ impl TeleDongle {
 		// should iface = 1 and setting = 0??? (look at packet 13)
 		handle.set_active_configuration(Self::CONFIG)?;
 		handle.claim_interface(endpoint.iface)?;
+
+		// packet 11??
+		// TODO check????
+		// handle.write_control(0x00, 0x09, 0x0100, 0, &[], Self::TIMEOUT)?;
+
 		// IDK what this does....
 		// i think its packet 13
 		handle.set_alternate_setting(endpoint.iface, endpoint.setting)?;
@@ -82,7 +93,7 @@ impl TeleDongle {
 		// set line coding request (packet 39)
 		handle.write_control(0x21, 0x20, 0, 0, &Self::SET_LINE_CODING_PAYLOAD_39, Self::TIMEOUT)?;
 
-		// skipping packet: 41
+		// ignore packet: 41
 
 		// set control line state request (packet 43)
 		handle.write_control(0x21, 0x02, 3, 0, &[], Self::TIMEOUT)?;
@@ -117,6 +128,36 @@ impl TeleDongle {
 			had_kernel_driver,
 		})
 	}
+
+	pub fn read_from_telem_endpoint(&self) -> anyhow::Result<Vec<u8>> {
+		let mut buf: Vec<u8> = vec![0; 1024*16];
+
+		let response = self.handle.read_bulk(Self::TELEM_ENDPOINT, &mut buf, Self::LONG_TIMEOUT);
+
+		match response {
+			Ok(n) => {
+				buf.truncate(n);
+				Ok(buf)
+			},
+			Err(rusb::Error::Overflow) => {
+				Ok(buf)
+			},
+			Err(_) => {
+				dbg!(&response);
+				buf.truncate(response?);
+				Ok(buf)
+			}
+		}
+	}
+
+	// decodes 36 bytes worth of a hex string into bytes
+	pub fn hex_string_to_bytes(input: &str) -> Vec<u8> {
+		let mut buf: Vec<u8> = vec![0; 36];
+
+		hex::decode_to_slice(input, &mut buf).expect("couldn't convert TELEM hex string to bytes");
+
+		buf
+	}
 }
 
 // impl<U: UsbContext> Drop for TeleDongle<U> {
@@ -128,5 +169,27 @@ impl Drop for TeleDongle {
 		if self.had_kernel_driver {
 			self.handle.attach_kernel_driver(self.endpoint.iface).expect("couldn't attach kernel driver");
 		}
+	}
+}
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+	use bytes::{BufMut, BytesMut};
+
+	#[test]
+	fn hexstring_test_01() {
+		let mut real_ans = BytesMut::with_capacity(36);
+		real_ans.put_u64(0x224c14ac021409e4_u64);
+		real_ans.put_u64(0xff66850100c80a54_u64);
+		real_ans.put_u64(0x055500da000300fa_u64);
+		real_ans.put_u64(0xff0100f901390126_u64);
+		real_ans.put_u32(0x056e86fe_u32);
+
+		let input_bytes = include_bytes!("telem_1_example.bin").to_vec();
+		let input_string = String::from_utf8(input_bytes.clone()).unwrap();
+		let ans = TeleDongle::hex_string_to_bytes(&input_string);
+
+		assert_eq!(ans, real_ans.to_vec());
 	}
 }
