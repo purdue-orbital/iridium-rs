@@ -1,3 +1,4 @@
+#[allow(dead_code)]
 pub fn u16_summation(bin: &[u8]) -> u16 {
 	let mut total: u16 = 0;
 
