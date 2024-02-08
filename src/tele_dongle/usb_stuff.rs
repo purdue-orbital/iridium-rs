@@ -24,8 +24,6 @@ pub fn open_device<T: UsbContext>(
 			Err(_) => continue,
 		};
 
-		// dbg!(&device_desc);
-
 		if (device_desc.vendor_id() == vid) && (device_desc.product_id() == pid) {
 			match dbg!(device.open()) {
 				Ok(handle) => return Some((device, handle)),

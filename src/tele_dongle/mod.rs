@@ -2,6 +2,8 @@ use rusb::{Context, Device, DeviceHandle};
 
 use std::time::Duration;
 
+use crate::tele_dongle::usb_stuff::Endpoint;
+
 mod usb_stuff;
 
 // pub struct TeleDongle <U: UsbContext> {
@@ -17,8 +19,7 @@ pub struct TeleDongle {
 	context: Context,
 	device: Device<Context>,
 	handle: DeviceHandle<Context>,
-	endpoint: usb_stuff::Endpoint,
-	had_kernel_driver: bool,
+	endpoints_and_kernel_drivers: Vec<(usb_stuff::Endpoint, bool)>,
 }
 
 // impl<U: UsbContext> TeleDongle<U> {
@@ -54,23 +55,28 @@ impl TeleDongle {
 		// find the endpoint thingy, should be 0x00 i think
 		let endpoints = usb_stuff::find_readable_endpoints(&mut device)?;
 		dbg!(&endpoints);
-		let endpoint = endpoints.first().expect("No Configurable endpoint found on device").clone();
+		// let endpoint = endpoints.first().expect("No Configurable endpoint found on device").clone();
 
-		// check if there is a kernel driver, if there is, detatch it
-		let had_kernel_driver = match handle.kernel_driver_active(endpoint.iface) {
-			Ok(true) => {
-				handle.detach_kernel_driver(endpoint.iface)?;
-				true
-			}
-			_ => false,
-		};
+		let endpoints_and_kernel_drivers: Vec<(usb_stuff::Endpoint, bool)> = endpoints.iter().map(|each| {
+			// check if there is a kernel driver, if there is, detatch it
+			let flag = match handle.kernel_driver_active(each.iface) {
+				Ok(true) => {
+					handle.detach_kernel_driver(each.iface).expect("couldn't detatch kernel driver");
+					true
+				}
+				_ => false,
+			};
 
-		dbg!(had_kernel_driver);
+			(*each, flag)
+		}).collect();
 
 		// set config
 		// should iface = 1 and setting = 0??? (look at packet 13)
 		handle.set_active_configuration(Self::CONFIG)?;
-		handle.claim_interface(endpoint.iface)?;
+
+		for each in endpoints {
+			handle.claim_interface(each.iface)?;
+		}
 
 		// packet 11??
 		// TODO check????
@@ -78,7 +84,9 @@ impl TeleDongle {
 
 		// IDK what this does....
 		// i think its packet 13
-		handle.set_alternate_setting(endpoint.iface, endpoint.setting)?;
+		for each in endpoints {
+			handle.set_alternate_setting(each.iface, each.setting)?;
+		}
 
 		// set control line state request (packet 17)
 		// i think this is correct
@@ -124,7 +132,7 @@ impl TeleDongle {
 			context,
 			device,
 			handle,
-			endpoint,
+			endpoints,
 			had_kernel_driver,
 		})
 	}
