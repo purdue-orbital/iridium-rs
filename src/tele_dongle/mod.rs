@@ -2,8 +2,6 @@ use rusb::{Context, Device, DeviceHandle};
 
 use std::time::Duration;
 
-use crate::tele_dongle::usb_stuff::Endpoint;
-
 mod usb_stuff;
 
 // pub struct TeleDongle <U: UsbContext> {
@@ -57,7 +55,7 @@ impl TeleDongle {
 		dbg!(&endpoints);
 		// let endpoint = endpoints.first().expect("No Configurable endpoint found on device").clone();
 
-		let endpoints_and_kernel_drivers: Vec<(usb_stuff::Endpoint, bool)> = endpoints.iter().map(|each| {
+		let endpoints_and_kernel_drivers: Vec<(usb_stuff::Endpoint, bool)> = endpoints.clone().iter().map(|each| {
 			// check if there is a kernel driver, if there is, detatch it
 			let flag = match handle.kernel_driver_active(each.iface) {
 				Ok(true) => {
@@ -67,14 +65,14 @@ impl TeleDongle {
 				_ => false,
 			};
 
-			(*each, flag)
+			(each.clone(), flag)
 		}).collect();
 
 		// set config
 		// should iface = 1 and setting = 0??? (look at packet 13)
 		handle.set_active_configuration(Self::CONFIG)?;
 
-		for each in endpoints {
+		for each in endpoints.clone() {
 			handle.claim_interface(each.iface)?;
 		}
 
@@ -84,7 +82,7 @@ impl TeleDongle {
 
 		// IDK what this does....
 		// i think its packet 13
-		for each in endpoints {
+		for each in endpoints.clone() {
 			handle.set_alternate_setting(each.iface, each.setting)?;
 		}
 
