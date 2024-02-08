@@ -72,9 +72,13 @@ impl TeleDongle {
 		// should iface = 1 and setting = 0??? (look at packet 13)
 		handle.set_active_configuration(Self::CONFIG)?;
 
-		for each in endpoints.clone() {
-			handle.claim_interface(each.iface)?;
-		}
+		// for each in endpoints.clone() {
+		// 	handle.claim_interface(each.iface)?;
+		// }
+
+		// TEMP FIX
+		handle.claim_interface(0);
+		handle.claim_interface(1);
 
 		// packet 11??
 		// TODO check????
