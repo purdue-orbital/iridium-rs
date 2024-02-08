@@ -77,8 +77,8 @@ impl TeleDongle {
 		// }
 
 		// TEMP FIX
-		handle.claim_interface(0)?;
-		handle.claim_interface(1)?;
+		// handle.claim_interface(0)?;
+		// handle.claim_interface(1)?;
 
 		// packet 11??
 		// TODO check????
