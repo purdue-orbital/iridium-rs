@@ -132,8 +132,7 @@ impl TeleDongle {
 			context,
 			device,
 			handle,
-			endpoints,
-			had_kernel_driver,
+			endpoints_and_kernel_drivers,
 		})
 	}
 
