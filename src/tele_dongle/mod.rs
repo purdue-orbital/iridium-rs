@@ -78,7 +78,7 @@ impl TeleDongle {
 
 		// packet 11??
 		// TODO check????
-		// handle.write_control(0x00, 0x09, 0x0100, 0, &[], Self::TIMEOUT)?;
+		handle.write_control(0x00, 0x09, 0x0100, 0, &[], Self::TIMEOUT)?;
 
 		// IDK what this does....
 		// i think its packet 13
