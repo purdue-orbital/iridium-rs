@@ -168,17 +168,18 @@ impl TeleDongle {
 	}
 }
 
-// impl<U: UsbContext> Drop for TeleDongle<U> {
-impl Drop for TeleDongle {
-	fn drop(&mut self) {
-		self.handle.release_interface(self.endpoint.iface).expect("couldn't release teledongle interface");
+// TODO!!!! reimplement
+// // impl<U: UsbContext> Drop for TeleDongle<U> {
+// impl Drop for TeleDongle {
+// 	fn drop(&mut self) {
+// 		self.handle.release_interface(self.endpoint.iface).expect("couldn't release teledongle interface");
 
-		// reattach kernel driver if needed
-		if self.had_kernel_driver {
-			self.handle.attach_kernel_driver(self.endpoint.iface).expect("couldn't attach kernel driver");
-		}
-	}
-}
+// 		// reattach kernel driver if needed
+// 		if self.had_kernel_driver {
+// 			self.handle.attach_kernel_driver(self.endpoint.iface).expect("couldn't attach kernel driver");
+// 		}
+// 	}
+// }
 
 #[cfg(test)]
 mod tests {
