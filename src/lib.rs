@@ -1,5 +1,3 @@
-mod checksum;
-
 pub mod tele_dongle;
 
 // #[derive(Debug)]
