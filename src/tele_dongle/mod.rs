@@ -3,20 +3,27 @@ use anyhow::Result;
 
 use std::time::Duration;
 use std::boxed::Box;
-use std::io;
+use std::io::{self, Read};
 
-pub mod commands;
+pub mod message;
+pub mod telem;
 
 #[derive(Debug)]
 pub struct TeleDongle {
-	pub port: Box<dyn serialport::SerialPort>
+	pub port: Box<dyn serialport::SerialPort>,
+	pub buf: Vec<u8>,
 }
 
 impl TeleDongle {
 	const VID: u16 = 65534;
 	const PID: u16 = 12;
 	const BAUD: u32 = 38400;
-	const TIMEOUT: Duration = Duration::from_millis(150);
+
+	const TIMEOUT: Duration = Duration::from_millis(1500);
+
+	const FREQUENCY: u32 = 434550; // TODO: check
+
+	const BUF_LEN: usize = 100;
 
 	pub fn new() -> Result<Self> {
 		let mut ports = serialport::available_ports().expect("No ports found!");
@@ -36,24 +43,48 @@ impl TeleDongle {
 			.timeout(Self::TIMEOUT)
 			.open().expect("couldn't open port");
 
-		// let mut buf = vec![0_u8; 10_000];
-		port.write(b"~\nE 0\nm 0\n")?;
-		port.write(b"c s\nc T 1\nm 20\nm 20\nc s\n")?;
+		let mut buf = vec![0_u8; 10_000];
+		port.write(b"c E 0\n")?;
+		port.write(format!("c F {}\n", Self::FREQUENCY).as_bytes())?;
+		port.write(b"c T 0\n")?;
+		port.write(b"m 20\n")?;
 
-		// let _ = port.read(&mut buf);
+
+		let _ = port.read(&mut buf);
 
 		Ok(Self {
-			port
+			port,
+			buf: Vec::with_capacity(Self::BUF_LEN)
 		})
 	}
 
-	// decodes 36 bytes worth of a hex string into bytes
-	pub fn hex_string_to_bytes(input: &str) -> Vec<u8> {
-		let mut buf: Vec<u8> = vec![0; 36];
+	pub fn read_a_bit(&mut self) -> Option<String> {
+		let mut byte: [u8; 1] = [0];
 
-		hex::decode_to_slice(input, &mut buf).expect("couldn't convert TELEM hex string to bytes");
+		if self.read(&mut byte).is_err() {
+			return None;
+		}
 
-		buf
+		if byte[0] == b'\n' {
+			let s = String::from_utf8(self.buf.clone()).unwrap() ;
+			self.buf.clear();
+			return Some(s);
+		} else {
+			self.buf.push(byte[0]);
+			return None;
+		}
+	}
+
+	/// reads a line of output from the TeleDongle
+	/// NOTE: this blocks untill a whole line is avaliable, which could be many seconds
+	pub fn read_line(&mut self) -> String {
+		let mut s = self.read_a_bit();
+
+		while s.is_none() {
+			s = self.read_a_bit();
+		}
+
+		s.unwrap()
 	}
 }
 
@@ -70,27 +101,5 @@ impl io::Write for TeleDongle {
 impl io::Read for TeleDongle {
 	fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
 		self.port.read(buf)
-	}
-}
-
-#[cfg(test)]
-mod tests {
-	use super::*;
-	use bytes::{BufMut, BytesMut};
-
-	#[test]
-	fn hexstring_test_01() {
-		let mut real_ans = BytesMut::with_capacity(36);
-		real_ans.put_u64(0x224c14ac021409e4_u64);
-		real_ans.put_u64(0xff66850100c80a54_u64);
-		real_ans.put_u64(0x055500da000300fa_u64);
-		real_ans.put_u64(0xff0100f901390126_u64);
-		real_ans.put_u32(0x056e86fe_u32);
-
-		let input_bytes = include_bytes!("telem_1_example.bin").to_vec();
-		let input_string = String::from_utf8(input_bytes.clone()).unwrap();
-		let ans = TeleDongle::hex_string_to_bytes(&input_string);
-
-		assert_eq!(ans, real_ans.to_vec());
 	}
 }
