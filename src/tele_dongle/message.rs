@@ -69,6 +69,7 @@ mod tests {
 						let packet: TeleDonglePacket = arr.into();
 
 						println!("{}", packet.packet_type);
+						dbg!(packet.parse_payload());
 
 						record[packet.packet_type as usize] += 1;
 					},
@@ -79,7 +80,7 @@ mod tests {
 
 		for pair in record.iter().enumerate() {
 			if pair.1 != &0 {
-				dbg!(pair);
+				// dbg!(pair);
 			}
 		}
 

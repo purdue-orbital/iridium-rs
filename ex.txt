@@ -1,0 +1,184 @@
+[examples\s_test.rs:16:2] &dongle = TeleDongle {
+    port: SerialPort ( name: COM5 baud_rate: 38400 data_bits: Eight flow_control: None parity: None stop_bits: One ),
+    buf: [],
+}
+[examples\s_test.rs:20:3] &line = "TELEM 224c14e60e1418e8ff517f0100860825054e009b01f5ff000000001805a7fc1f024087d0\r"
+[examples\s_test.rs:32:6] e = Unknown
+[examples\s_test.rs:20:3] &line = "TELEM 224c14e90e09025c0c1b040000000000004d7f0100e9ffe8ff1000f4ffefffffff3e8995\r"
+[examples\s_test.rs:32:6] e = Unknown
+[examples\s_test.rs:20:3] &line = "TELEM 224c14740e0520efff000000000000000018021b031f2fe7e7e7010000000000ff3e874f\r"
+[examples\s_test.rs:32:6] e = GPS(
+    GPSData {
+        altitude: 5236,
+        latitude: 2198291.0,
+        longitude: -156796.4,
+        ground_speed: 12263,
+        climb_rate: -6169,
+    },
+)
+[examples\s_test.rs:20:3] &line = "TELEM 224c14740e060000000000000000000000000000000000000000000000000000ff3e8504\r"
+[examples\s_test.rs:32:6] e = Unknown
+[examples\s_test.rs:20:3] &line = "TELEM 224c144b0f1419ecff567f01008708150578007401cdff3d00000019059efcf9013e8718\r"
+[examples\s_test.rs:32:6] e = Unknown
+[examples\s_test.rs:20:3] &line = "TELEM 224c144e0f0902600c1c040000000000004d7f0100e9ffe8ff1000f9fff0ffffff3e8603\r"
+[examples\s_test.rs:32:6] e = Unknown
+[examples\s_test.rs:20:3] &line = "TELEM 224c14d80e0520efff000000000000000018021b031f30e7e7e7010000000000ff3e88b5\r"
+[examples\s_test.rs:32:6] e = GPS(
+    GPSData {
+        altitude: 5336,
+        latitude: 2198291.0,
+        longitude: -156796.4,
+        ground_speed: 12519,
+        climb_rate: -6169,
+    },
+)
+[examples\s_test.rs:20:3] &line = "TELEM 224c14d80e060000000000000000000000000000000000000000000000000000ff3e876a\r"
+[examples\s_test.rs:32:6] e = Unknown
+[examples\s_test.rs:20:3] &line = "TELEM 224c14d80e04230400011a0000f40100044b44354d4a4d0000312e392e313700003e877a\r"
+[examples\s_test.rs:32:6] e = Unknown
+[examples\s_test.rs:20:3] &line = "TELEM 224c14b00f1419eaff547f0100880834058100780174003d00810004054ffcd3013e8947\r"
+[examples\s_test.rs:32:6] e = Unknown
+[examples\s_test.rs:20:3] &line = "TELEM 224c14b30f09025c0c1b040000000000004d7f0100e9ffe8ff1000fdfff1ffffff3e8567\r"
+[examples\s_test.rs:32:6] e = Unknown
+[examples\s_test.rs:20:3] &line = "TELEM 224c143b0f0520efff000000000000000018021b031f31e7e7e7010000000000ff3e8618\r"
+[examples\s_test.rs:32:6] e = GPS(
+    GPSData {
+        altitude: 5179,
+        latitude: 2355087.5,
+        longitude: -156796.4,
+        ground_speed: 12775,
+        climb_rate: -6169,
+    },
+)
+[examples\s_test.rs:20:3] &line = "TELEM 224c143b0f060000000000000000000000000000000000000000000000000000ff3e86cd\r"
+[examples\s_test.rs:32:6] e = Unknown
+[examples\s_test.rs:20:3] &line = "TELEM 224c1415101418ebff507f01008808dd040e02a300f90078019101a10325fab6003c8628\r"
+[examples\s_test.rs:32:6] e = Unknown
+[examples\s_test.rs:20:3] &line = "TELEM 224c14181009025f0c1b040000000000004d7f0100e9ffe8ff1000f5fff2ffffff3c8bcd\r"
+[examples\s_test.rs:32:6] e = Unknown
+[examples\s_test.rs:20:3] &line = "TELEM 224c14a00f0520efff000000000000000018021b031f32e7e7e7010000000000ff3c877d\r"
+[examples\s_test.rs:32:6] e = GPS(
+    GPSData {
+        altitude: 5280,
+        latitude: 2355087.5,
+        longitude: -156796.4,
+        ground_speed: 13031,
+        climb_rate: -6169,
+    },
+)
+[examples\s_test.rs:20:3] &line = "TELEM 224c14a00f060000000000000000000000000000000000000000000000000000ff3c8630\r"
+[examples\s_test.rs:32:6] e = Unknown
+[examples\s_test.rs:20:3] &line = "TELEM 224c147a101415e9ff577f01008908e204c4014400acffb0006d00a70318fa05004085fa\r"
+[examples\s_test.rs:32:6] e = Unknown
+[examples\s_test.rs:20:3] &line = "TELEM 224c147d1009025a0c18040000000000004d7f0100e9ffe8ff1000f6ffedffffff408524\r"
+[examples\s_test.rs:32:6] e = Unknown
+[examples\s_test.rs:20:3] &line = "TELEM 224c1467100520efff000000000000000018021b031f34e7e7e7010000000000ff40864a\r"
+[examples\s_test.rs:32:6] e = GPS(
+    GPSData {
+        altitude: 5223,
+        latitude: 2511883.8,
+        longitude: -156796.4,
+        ground_speed: 13543,
+        climb_rate: -6169,
+    },
+)
+[examples\s_test.rs:20:3] &line = "TELEM 224c146710060000000000000000000000000000000000000000000000000000ff4085fb\r"
+[examples\s_test.rs:32:6] e = Unknown
+[examples\s_test.rs:20:3] &line = "TELEM 224c14df101410ebff567f0100870804053b014b003c00ddfe0efe9d043bfb42004087af\r"
+[examples\s_test.rs:32:6] e = Unknown
+[examples\s_test.rs:20:3] &line = "TELEM 224c14e21009025c0c17040000000000004d7f0100e9ffe8ff1000f8ffebffffff42848b\r"
+[examples\s_test.rs:32:6] e = Unknown
+[examples\s_test.rs:20:3] &line = "TELEM 224c14cb100520efff000000000000000018021b031f35e7e7e7010000000000ff4287b2\r"
+[examples\s_test.rs:32:6] e = GPS(
+    GPSData {
+        altitude: 5323,
+        latitude: 2511883.8,
+        longitude: -156796.4,
+        ground_speed: 13799,
+        climb_rate: -6169,
+    },
+)
+[examples\s_test.rs:20:3] &line = "TELEM 224c14cb10060000000000000000000000000000000000000000000000000000ff408660\r"
+[examples\s_test.rs:32:6] e = Unknown
+[examples\s_test.rs:20:3] &line = "TELEM 224c1444111415ebff507f01008808c0042100ce009a001900cbff3805b6fc85014086ed\r"
+[examples\s_test.rs:32:6] e = Unknown
+[examples\s_test.rs:20:3] &line = "TELEM 224c14471109025e0c1c040000000000004d7f0100e9ffe8ff1000fcfff4ffffff408605\r"
+[examples\s_test.rs:32:6] e = Unknown
+[examples\s_test.rs:20:3] &line = "TELEM 224c1430110520efff000000000000000018021b031f36e7e7e7010000000000ff408818\r"
+[examples\s_test.rs:32:6] e = GPS(
+    GPSData {
+        altitude: 5168,
+        latitude: 2668680.0,
+        longitude: -156796.4,
+        ground_speed: 14055,
+        climb_rate: -6169,
+    },
+)
+[examples\s_test.rs:20:3] &line = "TELEM 224c143011060000000000000000000000000000000000000000000000000000ff4086c6\r"
+[examples\s_test.rs:32:6] e = Unknown
+[examples\s_test.rs:20:3] &line = "TELEM 224c14301104230400011a0000f40100044b44354d4a4d0000312e392e313700004089d9\r"
+[examples\s_test.rs:32:6] e = Unknown
+[examples\s_test.rs:20:3] &line = "TELEM 224c14a911142dedff547f01008a08600465ff7102f7fe1dffe2006a0464febc044c8899\r"
+[examples\s_test.rs:32:6] e = Unknown
+[examples\s_test.rs:20:3] &line = "TELEM 224c14ac1109025f0c17040000000000004d7f0100e9ffe8ff1000eafff2ffffff4c865e\r"
+[examples\s_test.rs:32:6] e = Unknown
+[examples\s_test.rs:20:3] &line = "TELEM 224c1495110520efff000000000000000018021b031f37e7e7e7010000000000ff4c8789\r"
+[examples\s_test.rs:32:6] e = GPS(
+    GPSData {
+        altitude: 5269,
+        latitude: 2668680.0,
+        longitude: -156796.4,
+        ground_speed: 14311,
+        climb_rate: -6169,
+    },
+)
+[examples\s_test.rs:20:3] &line = "TELEM 224c149511060000000000000000000000000000000000000000000000000000ff4c8738\r"
+[examples\s_test.rs:32:6] e = Unknown
+[examples\s_test.rs:20:3] &line = "TELEM 224c140e121432ecff507f01008a087c04fdfff4028c00baff2a00ca039efd1a054e87aa\r"
+[examples\s_test.rs:32:6] e = Unknown
+[examples\s_test.rs:20:3] &line = "TELEM 224c14111209025d0c1a040000000000004d7f0100e9ffe8ff1000e4ffdefffeff5086ae\r"
+[examples\s_test.rs:32:6] e = Unknown
+[examples\s_test.rs:20:3] &line = "TELEM 224c14f8110520efff000000000000000018021b031f38e7e7e7010000000000ff4e86ee\r"
+[examples\s_test.rs:32:6] e = GPS(
+    GPSData {
+        altitude: 5368,
+        latitude: 2668680.0,
+        longitude: -156796.4,
+        ground_speed: 14567,
+        climb_rate: -6169,
+    },
+)
+[examples\s_test.rs:20:3] &line = "TELEM 224c14f811060000000000000000000000000000000000000000000000000000ff5088a0\r"
+[examples\s_test.rs:32:6] e = Unknown
+[examples\s_test.rs:20:3] &line = "TELEM 224c1473121433eeff4d7f01008308710498ffc80293ff1101e3ff1604cbfdd3045086b6\r"
+[examples\s_test.rs:32:6] e = Unknown
+[examples\s_test.rs:20:3] &line = "TELEM 224c14761209025d0c18040000000000004d7f0100e9ffe8ff1000e1ffccfffeff5088fe\r"
+[examples\s_test.rs:32:6] e = Unknown
+[examples\s_test.rs:20:3] &line = "TELEM 224c145c120520efff000000000000000018021b031f39e7e7e7010000000000ff508757\r"
+[examples\s_test.rs:32:6] e = GPS(
+    GPSData {
+        altitude: 5212,
+        latitude: 2825476.5,
+        longitude: -156796.4,
+        ground_speed: 14823,
+        climb_rate: -6169,
+    },
+)
+[examples\s_test.rs:20:3] &line = "TELEM 224c145c12060000000000000000000000000000000000000000000000000000ff508704\r"
+[examples\s_test.rs:32:6] e = Unknown
+[examples\s_test.rs:20:3] &line = "TELEM 224c14d812141be5ff4f7f01007e08bf056affa200c001a60333017a05b7fdce013a853a\r"
+[examples\s_test.rs:32:6] e = Unknown
+[examples\s_test.rs:20:3] &line = "TELEM 224c14db1209025c0c17040000000000004d7f0100e8ffe8ff1000ffffc7fffdff38875f\r"
+[examples\s_test.rs:32:6] e = Unknown
+[examples\s_test.rs:20:3] &line = "TELEM 224c14c0120520efff000000000000000018021b031f3ae7e7e7010000000000ff3887a4\r"
+[examples\s_test.rs:32:6] e = GPS(
+    GPSData {
+        altitude: 5312,
+        latitude: 2825476.5,
+        longitude: -156796.4,
+        ground_speed: 15079,
+        climb_rate: -6169,
+    },
+)
+[examples\s_test.rs:20:3] &line = "TELEM 224c14c012060000000000000000000000000000000000000000000000000000ff38844d\r"
+[examples\s_test.rs:32:6] e = Unknown

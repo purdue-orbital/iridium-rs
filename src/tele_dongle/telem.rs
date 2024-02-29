@@ -1,5 +1,5 @@
 use bytes::{Buf, Bytes};
-use std::io::{Cursor, Seek, SeekFrom};
+use std::io::{Cursor, Read, Seek, SeekFrom};
 
 #[derive(Debug)]
 #[allow(dead_code)]
@@ -14,6 +14,21 @@ pub struct TeleDonglePacket {
 	pub rssi: u8,
 	lqi: u8,
 	checksum: u8,
+}
+
+#[derive(Debug)]
+pub enum TelemData {
+	GPS(GPSData),
+	Unknown,
+}
+
+#[derive(Debug)]
+pub struct GPSData {
+	pub altitude: i16, // m
+	pub latitude: f32, // degrees
+	pub longitude: f32, // degrees
+	pub ground_speed: u16, // cm/s
+	pub climb_rate: i16, // cm/s
 }
 
 impl TeleDonglePacket {
@@ -35,8 +50,30 @@ impl TeleDonglePacket {
 		sum as u8
 	}
 
-	pub fn parse_payload(&self) -> todo!() {
-		
+	pub fn parse_payload(&self) -> TelemData {
+		let mut bin = Cursor::new(self.payload.clone());
+
+		match self.packet_type {
+			5 => { // GPS
+				bin.seek(SeekFrom::Start(1)).unwrap();
+				let altitude = bin.get_i16();
+				let latitude = bin.get_i32() as f32 / 107.0;
+				let longitude = bin.get_i32() as f32 / 107.0;
+				
+				bin.seek(SeekFrom::Start(21)).unwrap();
+				let ground_speed = bin.get_u16();
+				let climb_rate = bin.get_i16();
+
+				TelemData::GPS(GPSData {
+					altitude,
+					latitude,
+					longitude,
+					ground_speed,
+					climb_rate,
+				})
+			},
+			_ => TelemData::Unknown
+		}
 	}
 }
 
